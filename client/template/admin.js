@@ -190,6 +190,9 @@ Template.ChatpalAdmin.events({
 });
 
 Template.ChatpalAdmin.helpers({
+	isAllowed() {
+		return RocketChat.authz.hasAtLeastOnePermission('edit-privileged-setting');
+	},
 	config() {
 		return Template.instance().config.get();
 	},

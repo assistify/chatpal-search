@@ -6,7 +6,7 @@ Meteor.startup(function() {
 		i18nLabel: 'CHATPAL_SEARCH',
 		icon: 'chatpal',
 		permissionGranted() {
-			return true;
+			return RocketChat.authz.hasAtLeastOnePermission('edit-privileged-setting');
 		}
 	});
 
