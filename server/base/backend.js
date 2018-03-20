@@ -1,29 +1,30 @@
-import {SystemLogger} from 'meteor/rocketchat:logger';
+import { SystemLogger } from 'meteor/rocketchat:logger';
 
 export class ChatpalBackend {
 	constructor(logger) {
 		this.chatpalBaseUrl = 'https://beta.chatpal.io/v1';//https://api.chatpal.io';
 		this.logger = logger;
-		this.init();
 	}
 
 	tryToEnable(config) {
-		this.enabled = config ? this._ping() : false;
-		const maxTries = 10;
-		const timeout = 10000;
-		if (!this.enabled) {
-			if (this.retryCounter <= maxTries) {
-				const delay = this.retryCounter * timeout;
-				this.logger.info('Couldn\'t enable Chatpal at', config.baseurl, 'trying again in', delay/1000, 'seconds');
-				this.retryCounter++;
-				Meteor.setTimeout(() => {
-					this.tryToEnable(config);
-				}, delay);
+		if (config) {
+			this.enabled = config ? this._ping() : false;
+			const maxTries = 10;
+			const timeout = 10000;
+			if (!this.enabled) {
+				if (this.retryCounter <= maxTries) {
+					const delay = this.retryCounter * timeout;
+					this.logger.info('Couldn\'t enable Chatpal at', config.baseurl, 'trying again in', delay / 1000, 'seconds');
+					this.retryCounter++;
+					Meteor.setTimeout(() => {
+						this.tryToEnable(config);
+					}, delay);
+				} else {
+					this.logger.info('Couldn\'t enable Chatpal at', config.baseurl, 'I gave up retrying, check the settings');
+				}
 			} else {
-				this.logger.info('Couldn\'t enable Chatpal at', config.baseurl, 'I gave up retrying, check the settings');
+				this.logger.info('Chatpal enabled via', config.baseurl);
 			}
-		} else {
-			this.logger.info('Chatpal enabled via', config.baseurl);
 		}
 	}
 
@@ -97,7 +98,7 @@ export class ChatpalBackend {
 
 	generateKey(email) {
 		try {
-			const response = HTTP.call('POST', `${ this.chatpalBaseUrl }/account`, {data: {email, tier: 'free'}});
+			const response = HTTP.call('POST', `${this.chatpalBaseUrl}/account`, { data: { email, tier: 'free' } });
 			if (response.statusCode === 201) {
 				return response.data.key;
 			} else {
@@ -110,7 +111,7 @@ export class ChatpalBackend {
 
 	renewKey(key) {
 		try {
-			const response = HTTP.call('POST', `${ this.chatpalBaseUrl }/account/key`, {headers: {'X-Api-Key': key}});
+			const response = HTTP.call('POST', `${this.chatpalBaseUrl}/account/key`, { headers: { 'X-Api-Key': key } });
 			if (response.statusCode === 201) {
 				return response.data.key;
 			} else {
@@ -123,7 +124,7 @@ export class ChatpalBackend {
 
 	validateKey(key) {
 		try {
-			const response = HTTP.call('GET', `${ this.chatpalBaseUrl }/account/key`, {headers: {'X-Api-Key': key}});
+			const response = HTTP.call('GET', `${this.chatpalBaseUrl}/account/key`, { headers: { 'X-Api-Key': key } });
 			if (response.statusCode === 204) {
 				return true;
 			} else {
@@ -141,3 +142,5 @@ export const Chatpal = {
 	service: {},
 	Backend: new ChatpalBackend(SystemLogger)
 };
+
+Meteor.startup(() => Chatpal.Backend.init()); //delay initialization so that a config has surely been created
