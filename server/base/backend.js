@@ -143,4 +143,6 @@ export const Chatpal = {
 	Backend: new ChatpalBackend(SystemLogger)
 };
 
-Meteor.startup(() => Chatpal.Backend.init()); //delay initialization so that a config has surely been created
+//delay initialization so that a config has surely been created
+//warpping it into a startup and separating initialization from creation stops chatpal preventing a Rocket.Chat startup
+Meteor.startup(() => Chatpal.Backend.init());
