@@ -23,8 +23,8 @@ Meteor.startup(function() {
 });
 
 RocketChat.callbacks.add('enter-room', () => {
-	Meteor.call('chatpal.config.get', (err, config) => {
-		if (!err && config.chatpalActivated) {
+	Meteor.call('chatpal.isActive', (err, activated) => {
+		if (!err && activated) {
 			RocketChat.TabBar.updateButton('message-search', {
 				i18nTitle: 'CHATPAL_SEARCH',
 				icon: 'chatpal',

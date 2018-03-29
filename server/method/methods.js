@@ -81,6 +81,14 @@ Meteor.methods({
 });
 
 Meteor.methods({
+	'chatpal.isActive'() {
+
+		const config = RocketChat.models.Settings.findById('CHATPAL_CONFIG').fetch();
+		return config && config.length && config[0].value.chatpalActivated;
+	}
+});
+
+Meteor.methods({
 	'chatpal.utils.validatekey'(key) {
 		return Chatpal.Backend.validateKey(key);
 	}
