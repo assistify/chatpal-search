@@ -94,9 +94,9 @@ class ChatpalIndexer {
 
 		const limit = 100;
 		let skip = 0;
-		const users = [];
+		let users = [];
 		do {
-			const users = Meteor.users.find({}, {sort:{createdAt:1}, limit, skip}).fetch();
+			users = Meteor.users.find({}, {sort:{createdAt:1}, limit, skip}).fetch();
 			skip += limit;
 
 			const userDocs = [];
@@ -124,9 +124,9 @@ class ChatpalIndexer {
 
 		const limit = 100;
 		let skip = 0;
-		const rooms = [];
+		let rooms = [];
 		do {
-			const rooms = RocketChat.models.Rooms.find({t:{$ne:'d'}}, {sort:{createdAt:1}, limit, skip}).fetch();
+			rooms = RocketChat.models.Rooms.find({t:{$ne:'d'}}, {sort:{createdAt:1}, limit, skip}).fetch();
 			skip += limit;
 
 			const roomDocs = [];
@@ -560,7 +560,7 @@ class ChatpalSearchService {
 	}
 
 	reindex() {
-		if (Chatpal.Backend.enabled) {
+		if (Chatpal.Backend.enabled && this.indexer) {
 
 			logger && logger.debug('Reindex');
 
@@ -598,7 +598,7 @@ class ChatpalSearchService {
 						rooms: (response.data.facet_counts.facet_fields.type && response.data.facet_counts.facet_fields.type.CHATPAL_RESULT_TYPE_ROOM) ? response.data.facet_counts.facet_fields.type.CHATPAL_RESULT_TYPE_ROOM : 0
 					},
 					chart: [],
-					running: this.indexer.running
+					running: this.indexer?this.indexer.running:false
 				};
 
 				const chart_result = response.data.facet_counts.facet_ranges.created.counts;
